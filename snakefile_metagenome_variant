@@ -1,0 +1,38 @@
+import shutil
+
+configfile:
+    "config.yaml"
+
+# read config file to get run-specific informatoin
+
+SAMPLES, = glob_wildcards(config['fastqs']+"/{id}_clean_R1.fq")
+GENOMES, = glob_wildcards(config['assemblies']+"/{id}.filtered.fna")
+
+print(SAMPLES)
+print(GENOMES)
+
+onstart:
+	print("The samples used in this analysis are:"),
+	print(SAMPLES),
+	print("Running the metagenome variant caller pipeline") 
+
+rule all:
+	input:
+                expand(config['results_loc']+"/index/{genome}.index.completed", genome=GENOMES),
+                expand(config['results_loc']+"/bams/{sample}.{genome}.bam", sample=SAMPLES, genome=GENOMES),
+                expand(config['results_loc']+"/bams/{sample}.{genome}.sorted.bam", sample=SAMPLES,genome=GENOMES),
+                expand(config['results_loc']+"/bams/{sample}.{genome}.sorted.removeDups.bam", sample=SAMPLES, genome=GENOMES),
+                expand(config['results_loc']+"/bams/{sample}.{genome}.sorted.removeDups.bam.bai", sample=SAMPLES, genome=GENOMES),
+                expand(config['results_loc']+"/bams/{genome}.bamlist.txt", genome=GENOMES),
+                expand(config['results_loc']+"/vcfs/all_samples.{genome}.vcf", genome=GENOMES)
+	
+include:	"rules/index.smk"
+include:        "rules/bwa.smk"
+include:        "rules/sort.smk"
+include:        "rules/dups.smk"
+include:        "rules/bam_index.smk"
+include:        "rules/bcftools.smk"
+
+onsuccess:
+	print("Metagenome Variant Caller analysis finished!")
+	shutil.rmtree(".snakemake")

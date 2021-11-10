@@ -1,0 +1,6 @@
+fastqs:
+    "/datahome/Ircinia/metagenomeSNP/allfastqs"
+assemblies:
+        "/datahome/Ircinia/metagenomeSNP/redoingfailedsamples2"
+results_loc:
+        "/datahome/Ircinia/metagenomeSNP/resultsall"
